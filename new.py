@@ -15,12 +15,9 @@ client = Groq(api_key=groq_api_key)
 
 # -------------------- Initialize Firebase --------------------
 
-
+firebase_key = json.loads(st.secrets["FIREBASE_KEY"])
 if not firebase_admin._apps:
-    firebase_key = st.secrets["FIREBASE_KEY"]
-
-    # ✅ Use from_dict() — works with secrets JSON
-    cred = credentials.Certificate.from_dict(firebase_key)
+    cred = credentials.Certificate(firebase_key)
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
