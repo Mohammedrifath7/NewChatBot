@@ -19,12 +19,10 @@ client = Groq(api_key=groq_api_key)
 if not firebase_admin._apps:
     firebase_key = st.secrets["FIREBASE_KEY"]
 
-    # 🚫 No json.loads() needed — Streamlit already parses it
-    cred = credentials.Certificate(firebase_key)
+    # ✅ Use from_dict() — works with secrets JSON
+    cred = credentials.Certificate.from_dict(firebase_key)
     firebase_admin.initialize_app(cred)
 
-
-# Firestore client
 db = firestore.client()
 
 # -------------------- Streamlit UI Setup --------------------
