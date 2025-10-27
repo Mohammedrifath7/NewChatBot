@@ -6,41 +6,42 @@ from firebase_admin import credentials, firestore
 from datetime import datetime
 import json
 
-# -------------------- READ ENV VARIABLES (for Render) --------------------
+# -------------------- READ ENV VARIABLES (Render) --------------------
 
-# Get API key from Render Environment
-groq_api_key = os.environ.get("GROQ_API_KEY")
+# GROQ API Key
+groq_api_key = os.getenv("GROQ_API_KEY")
 if not groq_api_key:
     st.error("⚠️ GROQ_API_KEY not found in environment variables!")
+else:
+    client = Groq(api_key=groq_api_key)
 
-# Initialize Groq client
-client = Groq(api_key=groq_api_key)
+# FIREBASE Key (JSON string)
+firebase_key_str = os.getenv("FIREBASE_KEY")
 
-# Get Firebase credentials from Render Environment
-firebase_key_str = os.environ.get("FIREBASE_KEY")
 if not firebase_key_str:
     st.error("⚠️ FIREBASE_KEY not found in environment variables!")
 else:
-    # Parse JSON string (Render stores as single-line env var)
-    firebase_key = json.loads(firebase_key_str)
+    try:
+        firebase_key = json.loads(firebase_key_str)
 
-    # Replace literal '\n' with real newlines in private_key
-    if "private_key" in firebase_key:
-        firebase_key["private_key"] = firebase_key["private_key"].replace("\\n", "\n")
+        # Fix escaped newlines in private_key
+        if "private_key" in firebase_key:
+            firebase_key["private_key"] = firebase_key["private_key"].replace("\\n", "\n")
 
-    # Initialize Firebase once
-    if not firebase_admin._apps:
-        cred = credentials.Certificate(firebase_key)
-        firebase_admin.initialize_app(cred)
+        # Initialize Firebase once
+        if not firebase_admin._apps:
+            cred = credentials.Certificate(firebase_key)
+            firebase_admin.initialize_app(cred)
 
-    # Firestore client
-    db = firestore.client()
+        db = firestore.client()
+
+    except Exception as e:
+        st.error(f"⚠️ Firebase initialization failed: {e}")
 
 # -------------------- STREAMLIT UI SETUP --------------------
-
 st.set_page_config(page_title="Groq Chatbot", page_icon="💬", layout="centered")
 
-# Custom CSS for better chat look
+# Custom Chat CSS
 st.markdown("""
     <style>
     .chat-message {
@@ -76,7 +77,6 @@ st.title("💬 Chatting System")
 st.caption("Made with Groq | Model: LLaMA3-70B")
 
 # -------------------- SESSION STATE --------------------
-
 if "messages" not in st.session_state:
     st.session_state.messages = [{
         "role": "system",
@@ -87,7 +87,6 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
 # -------------------- DISPLAY CHAT HISTORY --------------------
-
 for msg in st.session_state.chat_history:
     if msg["role"] == "user":
         st.markdown(f'<div class="chat-container"><div class="chat-message user-message">🧑‍💻 {msg["content"]}</div></div>', unsafe_allow_html=True)
@@ -95,7 +94,6 @@ for msg in st.session_state.chat_history:
         st.markdown(f'<div class="chat-container"><div class="chat-message bot-message">💃 {msg["content"]}</div></div>', unsafe_allow_html=True)
 
 # -------------------- USER INPUT --------------------
-
 user_input = st.chat_input("Type your message...")
 
 if user_input:
@@ -114,12 +112,14 @@ if user_input:
     )
 
     # -------------------- GROQ RESPONSE --------------------
-    response = client.chat.completions.create(
-        messages=st.session_state.messages,
-        model="llama-3.3-70b-versatile"
-    )
-
-    reply = response.choices[0].message.content
+    try:
+        response = client.chat.completions.create(
+            messages=st.session_state.messages,
+            model="llama-3.3-70b-versatile"
+        )
+        reply = response.choices[0].message.content
+    except Exception as e:
+        reply = f"⚠️ Groq error: {e}"
 
     # Replace placeholder with actual reply
     typing_placeholder.markdown(
@@ -133,10 +133,11 @@ if user_input:
 
     # -------------------- SAVE TO FIRESTORE --------------------
     try:
-        db.collection("chats").add({
-            "user": user_input,
-            "bot": reply,
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        })
+        if "db" in locals():
+            db.collection("chats").add({
+                "user": user_input,
+                "bot": reply,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            })
     except Exception as e:
         st.warning(f"⚠️ Failed to save to Firestore: {e}")
