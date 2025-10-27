@@ -26,8 +26,7 @@ else:
 
         # Fix escaped newlines in private_key
         if "private_key" in firebase_key:
-            #firebase_key["private_key"] = firebase_key["private_key"].replace("\\\\n", "\n").replace("\\n", "\n")
-            firebase_key["private_key"] = firebase_key["private_key"].strip()
+            firebase_key["private_key"] = firebase_key["private_key"].replace("\\\\n", "\n").replace("\\n", "\n")
 
         # Initialize Firebase once
         if not firebase_admin._apps:
