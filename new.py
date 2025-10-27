@@ -19,11 +19,14 @@ client = Groq(api_key=groq_api_key)
 
 # Initialize Firebase (only once)
 if not firebase_admin._apps:
-    cred = credentials.Certificate(st.secrets["FIREBASE_KEY"])
+    cred = credentials.Certificate(dict(st.secrets["FIREBASE_KEY"]))
     firebase_admin.initialize_app(cred)
 
 # Firestore client
 db = firestore.client()
+
+# Firestore client
+
 # -------------------- Streamlit UI Setup --------------------
 st.set_page_config(page_title="Groq Chatbot", page_icon="💬", layout="centered")
 
