@@ -19,10 +19,7 @@ client = Groq(api_key=groq_api_key)
 if not firebase_admin._apps:
     firebase_key = st.secrets["FIREBASE_KEY"]
 
-    # If it's a string, convert to dict
-    if isinstance(firebase_key, str):
-        firebase_key = json.loads(firebase_key)
-
+    # 🚫 No json.loads() needed — Streamlit already parses it
     cred = credentials.Certificate(firebase_key)
     firebase_admin.initialize_app(cred)
 
