@@ -181,7 +181,7 @@ if user_input:
     st.session_state.chat_history.append({"role": "assistant", "content": reply})
 
     # -------------------- SAVE TO MONGODB --------------------
-    if chats_collection:
+    if chats_collection is not None:
         try:
             username = st.session_state.username
             chat_entry = {"user": user_input, "bot": reply, "created_at": datetime.utcnow()}
