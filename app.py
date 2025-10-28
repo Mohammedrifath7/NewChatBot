@@ -48,7 +48,7 @@ st.markdown("""
 st.title("💬 Welcome to ChatBot!")
 
 # -------------------- ALLOWED USERS --------------------
-ALLOWED_USERS = {"rifath", "marzooka","swathi"}
+ALLOWED_USERS = {"rifath", "marzooka","swathi","adlin"}
 
 # -------------------- SESSION STATE --------------------
 if "username" not in st.session_state:
