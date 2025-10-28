@@ -82,9 +82,9 @@ if mongo_uri:
         mongo_client.server_info()
         db = mongo_client["chatbot_db"]
         chats_collection = db["chats"]
-        st.sidebar.success("✅ MongoDB connected")
+        st.sidebar.success("✅ Welcome")
     except Exception as e:
-        st.sidebar.warning(f"⚠️ MongoDB connection failed: {e}")
+        st.sidebar.warning(f"⚠️ Mongo connection failed: {e}")
 else:
     st.sidebar.warning("⚠️ MONGO_URI not found in .env")
 
@@ -198,4 +198,4 @@ if user_input:
         except Exception as e:
             st.warning(f"⚠️ Failed to save chat: {e}")
     else:
-        st.warning("⚠️ MongoDB not available - chat not saved.")
+        st.warning("⚠️ Mongo not available - chat not saved.")
