@@ -155,7 +155,8 @@ if user_input:
         try:
             response = client.chat.completions.create(
                 messages=st.session_state.messages,
-                model="openai/gpt-oss-120b"
+                model="qwen/qwen3.6-27b",
+                temperature = 1.5
             )
             reply = response.choices[0].message.content
         except Exception as e:
