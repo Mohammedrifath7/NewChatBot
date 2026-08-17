@@ -155,8 +155,7 @@ if user_input:
         try:
             response = client.chat.completions.create(
                 messages=st.session_state.messages,
-                model="qwen/qwen3.6-27b",
-                temperature = 0.2
+                model="meta-llama/llama-4-scout-17b-16e-instruct"
             )
             reply = response.choices[0].message.content
         except Exception as e:
