@@ -155,7 +155,7 @@ if user_input:
         try:
             response = client.chat.completions.create(
                 messages=st.session_state.messages,
-                model=model="qwen/qwen3.6-27b",
+                model="qwen/qwen3.6-27b",
                 max_tokens=150
             )
             reply = response.choices[0].message.content
